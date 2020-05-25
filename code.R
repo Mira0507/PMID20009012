@@ -5,7 +5,8 @@ library(pheatmap)
 library(RColorBrewer)
 
 
-# supp table 
+############################### data cleaning ################################
+
 rct <- read_csv("rawcounts.csv")
 rct1 <- rct %>% 
         select(GeneSymbol, R1L1.HSM1:R8L2.HSF3)
@@ -36,6 +37,11 @@ rownames(mdata2) <- mdata1$sample
 # raw count data: rct3
 rct3 <- as.matrix(select(rct1, - EnsemblGeneID))
 rownames(rct3) <- rct1$EnsemblGeneID
+
+
+
+
+#################################### DESEQ #######################################
 
 
 # creating DESeq2 object des 
@@ -84,6 +90,10 @@ res3_s <- lfcShrink(des_deseq,
                    coef = "species_RM_vs_HS",
                    type = "apeglm")
 
+
+
+############################## final data cleaning ###############################
+
 # data cleaning for plotting 
 m_vs_f <- cbind(gene = rct1$EnsemblGeneID, as.data.frame(res1_s))
 
@@ -103,6 +113,11 @@ disp_plot <- ggplot(disp_df,
         scale_y_log10() + 
         theme_bw()
 
+
+
+
+
+#################################### plotting #################################
 
 
 # correlation heatmap 
