@@ -11,10 +11,10 @@ rct <- read_csv("rawcounts.csv")
 rct1 <- rct %>% 
         select(GeneSymbol, R1L1.HSM1:R8L2.HSF3)
 
-samples <- colnames(select(rct1, -EnsemblGeneID))
+samples <- colnames(select(rct1, -GeneSymbol))
 
 rct2 <- rct1 %>%
-        gather(sample_id, counts, - EnsemblGeneID) %>%
+        gather(sample_id, counts, - GeneSymbol) %>%
         mutate(sp = case_when(
                 str_detect(sample_id, "HSM") ~ "HS_Male",
                 str_detect(sample_id, "HSF") ~ "HS_Female",
@@ -25,7 +25,7 @@ rct2 <- rct1 %>%
         separate(sp, c("species", "gender"), sep = "_") %>%
         select(sample_id, species, gender)
 
-mdata <- data.frame(sample = colnames(rct1 %>% select(- EnsemblGeneID))) %>%
+mdata <- data.frame(sample = colnames(rct1 %>% select(- GeneSymbol))) %>%
         inner_join(rct2, by = c("sample" = "sample_id"))
 
 mdata1 <- unique(mdata)
@@ -35,8 +35,8 @@ mdata2 <- as.matrix(select(mdata1, -sample))
 rownames(mdata2) <- mdata1$sample
 
 # raw count data: rct3
-rct3 <- as.matrix(select(rct1, - EnsemblGeneID))
-rownames(rct3) <- rct1$EnsemblGeneID
+rct3 <- as.matrix(select(rct1, - GeneSymbol))
+rownames(rct3) <- rct1$GeneSymbol
 
 
 
@@ -95,7 +95,7 @@ res3_s <- lfcShrink(des_deseq,
 ############################## final data cleaning ###############################
 
 # data cleaning for plotting 
-m_vs_f <- cbind(gene = rct1$EnsemblGeneID, as.data.frame(res1_s))
+m_vs_f <- cbind(gene = rct1$GeneSymbol, as.data.frame(res1_s))
 
 
 
