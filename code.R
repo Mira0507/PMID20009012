@@ -120,9 +120,15 @@ p_vs_h <- sig_table(res2_s, "Chimpanzee over Human")
 r_vs_h <- sig_table(res3_s, "Rhesus Macaque over Human")
 
 
-comparison_table <- rbind(m_vs_f,
-                          p_vs_h,
-                          r_vs_h) 
+comparison_high <- rbind(m_vs_f[1:10, ],
+                         p_vs_h[1:10, ],
+                         r_vs_h[1:10, ]) 
+
+
+
+
+
+
 
 # normalized count data table for plotting
 rct_norm_df <- as.data.frame(rct_norm1) %>%
@@ -202,25 +208,34 @@ pca <- plotPCA(vsd, intgroup = c("gender", "species")) +
         ggtitle("PCA")
 
 # dispersion plot
-disp_plot <- ggplot(disp_df, 
+variance_vs_mean <- ggplot(disp_df, 
                     aes(x = mean_counts, 
                         y = var_counts)) +
         geom_point(alpha = 0.1) + 
         scale_x_log10() +
         scale_y_log10() + 
         theme_bw() + 
-        ggtitle("Dispersion Plot") + 
+        ggtitle("Counts Variance vs Counts Mean") + 
         xlab("Counts Mean") + 
         ylab("Counts Variance")
+
+disp_over_counts <- plotDispEsts(des_deseq, 
+                                 main = "Dispersion Estimates over Mean of Normalized Counts",
+                                 ylab = "Dispersion",
+                                 xlab = "Mean of Normalized Counts")
 
 # MA plots
 
 MA_m_vs_f <- plotMA(res1, 
                     ylim = c(-2, 2),
-                    main = "MA Plot of Contrast between Genders without Shrinkage")
+                    main = "MA Plot of Contrast between Genders without Shrinkage",
+                    xlab = "Mean of Normalized Counts",
+                    ylab = "Log Fold Change")
 MA_m_vs_f_shr <- plotMA(res1_s, 
                         ylim = c(-2, 2),
-                        main = "MA Plot of Contrast between Genders with Shrinkage")
+                        main = "MA Plot of Contrast between Genders with Shrinkage",
+                        xlab = "Mean of Normalized Counts",
+                        ylab = "Log Fold Change")
 
 MA_p_vs_h <- plotMA(res2, 
                     ylim = c(-8, 8),
@@ -252,3 +267,37 @@ res_heat_map <-
         xlab("Sample") + 
         ylab("Gene")
                            
+# top and bottom change genes
+
+top_genes <- function(df, barcol, tit) {
+        ggplot(df,
+               aes(x = log2FoldChange, 
+                   y = reorder(gene, log2FoldChange))) +
+                geom_bar(fill = barcol, stat = "identity", width = 0.8) + 
+                theme_bw() + 
+                theme(title = element_text(size = 10),
+                      axis.title.y = element_blank()) + 
+                xlab("Log2 Fold Change") + 
+                ylab("") + 
+                ggtitle(tit)
+}
+
+
+
+
+mf_top10_plot <- top_genes(m_vs_f[1:10, ], 
+                           "#9900FF", 
+                           "Top 10 Genes in \nMale Compared to Female")
+ph_top10_plot <- top_genes(p_vs_h[1:10, ],
+                           "#6600FF",
+                           "Top 10 Genes in \nChimpanzee Compared to Human")
+rh_top10_plot <- top_genes(r_vs_h[1:10, ],
+                           "#3300CC",
+                           "Top 10 Genes in \nRhesus Macaque Compared to Human" )
+
+library(gridExtra)
+
+top10_plots <- grid.arrange(mf_top10_plot,
+                            ph_top10_plot,
+                            rh_top10_plot, 
+                            nrow = 1)
