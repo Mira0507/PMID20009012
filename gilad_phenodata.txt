@@ -1,0 +1,7 @@
+sample.id num.tech.reps gender
+SRX014818and9 2 F
+SRX014820and1 2 F
+SRX014822and3 2 F
+SRX014824and5 2 M
+SRX014826and7 2 M
+SRX014828and9 2 M
